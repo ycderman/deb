@@ -18,9 +18,6 @@ echo "[1/4] Temel sistem ayarları yapılıyor..."
 # Root şifre belirleme
 sudo passwd root
 
-# Sudo şifresiz erişim
-echo 'can ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/can
-sudo chmod 440 /etc/sudoers.d/can
 
 # Komut bulunamadı özelliği
 sudo apt -y install command-not-found apt-file
