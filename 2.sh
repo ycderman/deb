@@ -1,19 +1,19 @@
 #!/bin/bash
-# Debian Minimal KDE Plasma Kurulumu - Bölüm 2
-# IdeaPad 530S-14IKB - Reboot Sonrası Devam
+# Debian Minimal KDE Plasma Installation - Part 2
+# IdeaPad 530S-14IKB - Continuing After Reboot
 
-set -e  # Hata durumunda scripti durdur
+set -e  # Exit on error
 
 echo "================================================"
-echo "Debian 13 Trixie KDE Plasma Kurulumu - Bölüm 2"
+echo "Debian 13 Trixie KDE Plasma Installation - Part 2"
 echo "================================================"
 echo ""
 
 # ============================================
-# 1. PİPEWİRE + KODEKLER
+# 1. PIPEWIRE + CODECS
 # ============================================
 
-echo "[1/6] PipeWire ve medya kodekleri kuruluyor..."
+echo "[1/6] Installing PipeWire and media codecs..."
 
 sudo apt install -y \
     pipewire-audio gstreamer1.0-pipewire gstreamer1.0-plugins-good \
@@ -21,20 +21,20 @@ sudo apt install -y \
     ffmpeg flac x264 x265 libavcodec-extra
 
 # ============================================
-# 2. BLUETOOTH + VPN ARAÇLARI
+# 2. BLUETOOTH + VPN TOOLS
 # ============================================
 
-echo "[2/6] Bluetooth ve VPN araçları kuruluyor..."
+echo "[2/6] Installing Bluetooth and VPN tools..."
 
 sudo apt install -y \
     network-manager-openconnect network-manager-openvpn \
     wireguard-tools bluez
 
 # ============================================
-# 3. KDE PLASMA + UYGULAMALAR + GÜÇ YÖNETİMİ
+# 3. KDE PLASMA + APPS + POWER MANAGEMENT
 # ============================================
 
-echo "[3/6] KDE Plasma masaüstü kuruluyor..."
+echo "[3/6] Installing KDE Plasma desktop..."
 
 sudo apt install -y \
     kde-plasma-desktop polkit-kde-agent-1 plasma-workspace-wallpapers \
@@ -42,15 +42,15 @@ sudo apt install -y \
     kdegraphics-thumbnailers kate kcalc ark gwenview \
     plymouth-themes powerdevil xdg-desktop-portal-kde
 
-# Fontlar ve Source Code Pro Entegrasyonu
-echo "Fontlar kuruluyor..."
+# Fonts and Source Code Pro Integration
+echo "Installing fonts..."
 
 sudo apt install -y \
     fonts-noto fonts-noto-color-emoji fonts-dejavu fonts-liberation \
     fonts-inter fonts-roboto fonts-ubuntu fonts-cantarell fonts-noto-cjk \
     unzip fontconfig wget
 
-echo "Source Code Pro (Adobe GitHub üzerinden) indirilip yapılandırılıyor..."
+echo "Downloading and configuring Source Code Pro (via Adobe GitHub)..."
 mkdir -p ~/.local/share/fonts/SourceCodePro
 wget -qO /tmp/scp.zip "https://github.com/adobe-fonts/source-code-pro/archive/refs/heads/release.zip"
 unzip -qo /tmp/scp.zip -d /tmp/scp_extracted
@@ -58,12 +58,12 @@ find /tmp/scp_extracted -name "*.ttf" -exec mv {} ~/.local/share/fonts/SourceCod
 rm -rf /tmp/scp.zip /tmp/scp_extracted
 fc-cache -fv ~/.local/share/fonts > /dev/null
 
-# Medya oynatıcılar
-echo "Medya oynatıcılar kuruluyor..."
+# Media players
+echo "Installing media players..."
 
 sudo apt install -y mpv vlc
 
-echo "MPV donanım hızlandırma (Zero-Copy) ayarlanıyor..."
+echo "Configuring MPV hardware acceleration (Zero-Copy)..."
 mkdir -p ~/.config/mpv
 cat > ~/.config/mpv/mpv.conf << 'EOF'
 hwdec=vaapi
@@ -72,12 +72,12 @@ gpu-context=wayland
 EOF
 
 # ============================================
-# 4. FIREFOX KURULUMU
+# 4. FIREFOX INSTALLATION
 # ============================================
 
-echo "[4/6] Firefox kuruluyor..."
+echo "[4/6] Installing Firefox..."
 
-# gnupg eksikse kur
+# Install gnupg if missing
 sudo apt install -y gnupg
 
 sudo install -d -m 0755 /etc/apt/keyrings
@@ -106,10 +106,10 @@ sudo apt update
 sudo apt install -y firefox
 
 # ============================================
-# 5. FONT RENDERİNG VE KDE PLASMA BOYUT AYARLARI
+# 5. FONT RENDERING AND KDE PLASMA SIZING
 # ============================================
 
-echo "[5/6] openSUSE tarzı Font rendering ve Font aileleri ayarlanıyor..."
+echo "[5/6] Configuring openSUSE-style font rendering and font families..."
 
 mkdir -p ~/.config/fontconfig
 
@@ -148,8 +148,8 @@ cat > ~/.config/fontconfig/fonts.conf << 'EOF'
 </fontconfig>
 EOF
 
-echo "KDE Plasma arayüzüne font boyutları işleniyor..."
-# Qt6 formatı: Family,Size,-1,5,Weight(400=Normal),0,0,0,0,0,0,0,0,0,0,1
+echo "Applying font sizes to KDE Plasma interface..."
+# Qt6 format: Family,Size,-1,5,Weight(400=Normal),0,0,0,0,0,0,0,0,0,0,1
 kwriteconfig6 --file kdeglobals --group General --key font "Roboto,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
 kwriteconfig6 --file kdeglobals --group General --key fixed "Source Code Pro,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
 kwriteconfig6 --file kdeglobals --group General --key smallestReadableFont "Roboto,8,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
@@ -158,10 +158,10 @@ kwriteconfig6 --file kdeglobals --group General --key menuFont "Roboto,10,-1,5,4
 kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key font "Roboto,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
 
 # ============================================
-# 6. WiFi VE BLUETOOTH GÜÇ TASARRUFU KAPATMA
+# 6. DISABLE WIFI AND BLUETOOTH POWER SAVING
 # ============================================
 
-echo "[6/6] WiFi ve Bluetooth güç tasarrufu kapatılıyor..."
+echo "[6/6] Disabling WiFi and Bluetooth power saving..."
 
 cat << 'EOF' | sudo tee /etc/modprobe.d/iwlwifi-power.conf
 options iwlwifi power_save=0
@@ -181,32 +181,32 @@ sudo udevadm trigger
 sudo systemctl restart NetworkManager
 
 echo ""
-echo "✓ WiFi ve Bluetooth güç tasarrufu KAPATILDI"
-echo "✓ Bağlantı stabilitesi maksimum"
-echo "✓ Reboot sonrası ayarlar tam aktif olur"
+echo "✓ WiFi and Bluetooth power saving DISABLED"
+echo "✓ Connection stability maximized"
+echo "✓ Changes will be fully active after reboot"
 echo ""
 
 sudo apt update
 sudo apt autoremove -y
 
 # ============================================
-# KURULUM TAMAMLANDI
+# INSTALLATION COMPLETED
 # ============================================
 
 echo ""
 echo "================================================"
-echo "Kurulum Tamamlandı!"
+echo "Installation Completed!"
 echo "================================================"
 echo ""
-echo "Sistem Bilgileri:"
+echo "System Information:"
 echo "----------------"
-echo "• Masaüstü: KDE Plasma 6"
-echo "• Ses Sistemi: PipeWire"
-echo "• Font Mimarisi: openSUSE Profili (Roboto & Source Code Pro)"
-echo "• Grafik: Intel + NVIDIA (Intel iHD zorunlu kılındı)"
-echo "• Video İvmelendirme: VA-API Aktif (GuC/HuC Modu)"
+echo "• Desktop Environment: KDE Plasma 6"
+echo "• Audio System: PipeWire"
+echo "• Font Architecture: openSUSE Profile (Roboto & Source Code Pro)"
+echo "• Graphics: Intel + NVIDIA (Intel iHD enforced)"
+echo "• Video Acceleration: VA-API Active (GuC/HuC Mode)"
 echo ""
-echo "Son reboot yapılıyor..."
+echo "Performing final reboot..."
 sleep 10
 
 sudo reboot
