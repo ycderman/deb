@@ -27,7 +27,8 @@ sudo apt -y install command-not-found apt-file
 sudo apt-file update && sudo update-command-not-found
 
 # Bash özelleştirme
-cat >> ~/.bashrc << 'EOF'
+cat << 'EOF' >> ~/.bashrc
+
 # Renkler
 RESET="\[\e[0m\]"
 NEON_ORANGE="\[\e[38;5;208m\]"
@@ -36,8 +37,7 @@ NEON_BLUE="\[\e[38;5;39m\]"
 NEON_PINK="\[\e[38;5;205m\]"
 
 # SSH mesajı
-if];
-then
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
     ssh_message="-ssh_session"
 else
     ssh_message=""
@@ -49,19 +49,15 @@ EOF
 
 source ~/.bashrc
 
-# ============================================
-# 2. ZRAM KURULUMU
-# ============================================
-
+# 2. ZRAM KURULUMU VE OPTİMİZASYONU
 echo "[2/4] ZRAM yapılandırılıyor..."
+sudo apt update && sudo apt -y install zram-tools
 
-sudo apt -y install zram-tools
-
-sudo sed -i 's/^ALGO=.*/ALGO=zstd/' /etc/default/zramswap
-sudo sed -i 's/^PERCENT=.*/PERCENT=60/' /etc/default/zramswap
-sudo sed -i 's/^PRIORITY=.*/PRIORITY=100/' /etc/default/zramswap
+# Yapılandırma dosyalarını düzenle
+echo -e "ALGO=zstd\nPERCENT=60\nPRIORITY=100" | sudo tee /etc/default/zramswap
 sudo systemctl restart zramswap
 
+# Sysctl optimizasyonları
 cat << 'EOF' | sudo tee /etc/sysctl.d/99-zram-tweaks.conf
 vm.swappiness=50
 vm.vfs_cache_pressure=50
