@@ -50,11 +50,12 @@ sudo apt install -y \
     fonts-inter fonts-roboto fonts-ubuntu fonts-cantarell fonts-noto-cjk \
     unzip fontconfig wget
 
-echo "Source Code Pro fontu indirilip yapılandırılıyor..."
+echo "Source Code Pro (Adobe GitHub üzerinden) indirilip yapılandırılıyor..."
 mkdir -p ~/.local/share/fonts/SourceCodePro
-wget -qO /tmp/source-code-pro.zip "https://fonts.google.com/download?family=Source%20Code%20Pro"
-unzip -qo /tmp/source-code-pro.zip -d ~/.local/share/fonts/SourceCodePro
-rm /tmp/source-code-pro.zip
+wget -qO /tmp/scp.zip "https://github.com/adobe-fonts/source-code-pro/archive/refs/heads/release.zip"
+unzip -qo /tmp/scp.zip -d /tmp/scp_extracted
+find /tmp/scp_extracted -name "*.ttf" -exec mv {} ~/.local/share/fonts/SourceCodePro/ \;
+rm -rf /tmp/scp.zip /tmp/scp_extracted
 fc-cache -fv ~/.local/share/fonts > /dev/null
 
 # Medya oynatıcılar
@@ -85,7 +86,7 @@ wget -q https://packages.mozilla.org/apt/repo-signing-key.gpg -O- | \
     sudo tee /etc/apt/keyrings/packages.mozilla.org.asc > /dev/null
 
 gpg -n -q --import --import-options import-show \
-    /etc/apt/keyrings/packages.mozilla.org.asc 2>&1 | grep -A 1 "^pub"
+    /etc/apt/keyrings/packages.mozilla.org.asc 2>&1 | grep -A 1 "^pub" || true
 
 cat << 'EOF' | sudo tee /etc/apt/sources.list.d/mozilla.sources
 Types: deb
