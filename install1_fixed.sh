@@ -144,14 +144,12 @@ sudo sysctl --system
 section "[3/5] Temel sistem araçları"
 
 apt_install \
-    network-manager wireless-tools rfkill \
+    wireless-tools rfkill \
     dnsutils iproute2 usbutils pciutils dosfstools mtools exfatprogs ntfs-3g \
     p7zip-full unrar zip unzip rsync btop glances dmidecode upower \
     lm-sensors avahi-daemon curl wget git fwupd \
     nfs-common cifs-utils smartmontools ethtool powertop
 
-sudo systemctl enable --now NetworkManager
-sudo systemctl enable --now avahi-daemon || true
 
 # ============================================
 # 4. KERNEL, FIRMWARE VE SÜRÜCÜLER
