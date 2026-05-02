@@ -96,10 +96,9 @@ apt_install \
 section "[4/8] VPN ve ağ araçları"
 
 apt_install \
-    network-manager network-manager-openconnect network-manager-openvpn \
-    wireguard-tools plasma-nm
+    network-manager-openconnect network-manager-openvpn \
+    wireguard-tools 
 
-sudo systemctl enable --now NetworkManager
 
 # ============================================
 # 5. KDE PLASMA + LAPTOP UYGULAMALARI
@@ -114,7 +113,7 @@ apt_install \
     qml6-module-org-kde-notifications \
     kdegraphics-thumbnailers kde-config-screenlocker kde-config-sddm kscreen \
     dolphin konsole kate kcalc ark gwenview okular spectacle kdeconnect \
-    plymouth-themes
+    plymouth-themes 
 
 sudo apt-get purge -y plasma-thunderbolt || true
 
@@ -123,23 +122,6 @@ sudo locale-gen tr_TR.UTF-8
 sudo update-locale LANG=tr_TR.UTF-8 LC_ALL=tr_TR.UTF-8
 
 sudo systemctl enable sddm
-
-# SDDM'in GPU hazır olmadan başlamasını engelle.
-sudo mkdir -p /etc/systemd/system/sddm.service.d
-write_root_file /etc/systemd/system/sddm.service.d/override.conf 0644 <<'EOF_SDDM_OVERRIDE'
-[Unit]
-Wants=systemd-logind.service
-After=systemd-logind.service
-ConditionPathExistsGlob=/dev/dri/card*
-EOF_SDDM_OVERRIDE
-
-# Plasma Wayland oturumu varsayılan olsun. SDDM greeter'ı Wayland'a zorlamıyoruz;
-# hibrit Intel+NVIDIA dizüstünde giriş ekranı kararlılığı için daha güvenli.
-sudo mkdir -p /etc/sddm.conf.d
-write_root_file /etc/sddm.conf.d/10-plasma-session.conf 0644 <<'EOF_SDDM_SESSION'
-[General]
-DefaultSession=plasmawayland.desktop
-EOF_SDDM_SESSION
 
 sudo systemctl daemon-reload
 
