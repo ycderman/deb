@@ -160,8 +160,8 @@ sudo systemctl enable --now avahi-daemon || true
 section "[4/5] Kernel, firmware ve sürücüler"
 
 apt_install \
-    linux-headers-amd64 \
-    intel-microcode firmware-iwlwifi firmware-misc-nonfree
+    linux-headers-amd64 firmware-intel-graphics firmware-intel-misc \
+    intel-microcode firmware-intel-sound firmware-iwlwifi firmware-misc-nonfree intel-microcode
 
 # NVIDIA tercihi korunuyor.
 echo "NVIDIA sürücü adayları:"
