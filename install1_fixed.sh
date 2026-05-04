@@ -22,7 +22,7 @@ apt_update() {
 }
 
 apt_install() {
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$@"
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$@"
 }
 
 write_root_file() {
@@ -65,7 +65,6 @@ section() {
 }
 
 section "Debian 13 Trixie KDE Plasma Kurulumu - Bölüm 1"
-
 # ============================================
 # 1. TEMEL SİSTEM AYARLARI
 # ============================================
