@@ -1,19 +1,24 @@
 #!/usr/bin/env bash
-# Debian 13 Trixie Minimal KDE Plasma Kurulumu - Bölüm 2
+# Debian 13 Trixie KDE Plasma Kurulumu - Bölüm 2
 # IdeaPad 530S-14IKB - Reboot Sonrası Devam
 # Hedef: KDE Plasma + PipeWire + Emby beta + medya/GPU hızlandırma
 
 set -Eeuo pipefail
 
-ADMIN_USER="${ADMIN_USER:-can}"
-ADMIN_HOME="$(getent passwd "$ADMIN_USER" | cut -d: -f6 || true)"
+if [[ $EUID -eq 0 ]]; then
+    echo "HATA: Bu betiği root/sudo ile çalıştırma. Normal kullanıcı olarak çalıştır: bash install2_revised.sh" >&2
+    exit 1
+fi
+
+ADMIN_USER="${ADMIN_USER:-$(id -un)}"
+ADMIN_HOME="${ADMIN_HOME:-$HOME}"
 
 trap 'rc=$?; echo "HATA: satır=${LINENO} komut=${BASH_COMMAND} çıkış=${rc}" >&2; exit "$rc"' ERR
 
 sudo -v
 
-if [[ -z "$ADMIN_HOME" ]]; then
-    echo "HATA: $ADMIN_USER kullanıcısı bulunamadı. ADMIN_USER=... ile çalıştır." >&2
+if [[ -z "$ADMIN_HOME" || ! -d "$ADMIN_HOME" ]]; then
+    echo "HATA: Kullanıcı ev dizini bulunamadı: $ADMIN_HOME" >&2
     exit 1
 fi
 
@@ -22,7 +27,7 @@ apt_update() {
 }
 
 apt_install() {
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$@"
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "$@"
 }
 
 write_root_file() {
@@ -52,7 +57,6 @@ section() {
 }
 
 section "Debian 13 Trixie KDE Plasma Kurulumu - Bölüm 2"
-
 # ============================================
 # 1. PİPEWIRE + KODEKLER
 # ============================================
@@ -106,14 +110,25 @@ apt_install \
 
 section "[5/8] KDE Plasma masaüstü"
 
+section "[5/8] KDE Plasma masaüstü"
+
 apt_install \
     kde-plasma-desktop sddm \
-    plasma-workspace-wallpapers powerdevil plasma-pa plasma-nm bluedevil \
-    polkit-kde-agent-1 xdg-desktop-portal xdg-desktop-portal-kde \
+    systemsettings \
+    plasma-workspace-wallpapers \
+    powerdevil power-profiles-daemon upower \
+    plasma-systemmonitor ksystemstats plasma-disks \
+    plasma-pa plasma-nm bluedevil \
+    polkit-kde-agent-1 \
+    xdg-desktop-portal xdg-desktop-portal-kde \
     qml6-module-org-kde-notifications \
     kdegraphics-thumbnailers kde-config-screenlocker kde-config-sddm kscreen \
-    dolphin konsole kate kcalc ark gwenview okular spectacle kdeconnect \
-    plymouth-themes 
+    kio-extras \
+    dolphin konsole kate kcalc ark gwenview okular kde-spectacle kdeconnect \
+    plymouth-themes \
+    sddm-theme-breeze sddm-theme-debian-breeze \
+    qt6-virtualkeyboard-plugin qml6-module-qtquick-virtualkeyboard
+
 
 sudo apt-get purge -y plasma-thunderbolt || true
 
