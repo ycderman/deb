@@ -161,12 +161,7 @@ apt_install \
     linux-headers-amd64 firmware-intel-graphics firmware-intel-misc \
     intel-microcode firmware-intel-sound firmware-iwlwifi firmware-misc-nonfree intel-microcode
 
-# NVIDIA tercihi korunuyor.
-echo "NVIDIA sürücü adayları:"
-apt-cache policy nvidia-driver || true
 
-apt_install \
-    nvidia-kernel-dkms nvidia-driver nvidia-settings nvidia-smi
 
 # Intel GPU / VA-API
 apt_install \
@@ -201,38 +196,18 @@ sudo systemctl enable --now bluetooth
 sudo rfkill unblock all || true
 
 # ============================================
-# 5. MODPROBE & BLACKLIST AYARLARI
+# 5. MODPROBE & INITRAMFS AYARLARI
 # ============================================
 
-section "[5/5] Modprobe, GRUB ve initramfs ayarları"
+section "[5/5] Modprobe ve initramfs ayarları"
 
 # Intel iGPU donanımsal hızlandırma ve güç tasarrufu.
 write_root_file /etc/modprobe.d/i915.conf 0644 <<'EOF_I915'
 options i915 enable_guc=3 enable_fbc=1
 EOF_I915
 
-# NVIDIA DRM modeset - Wayland için korunuyor.
-write_root_file /etc/modprobe.d/nvidia-drm.conf 0644 <<'EOF_NVIDIA_DRM'
-options nvidia-drm modeset=1
-EOF_NVIDIA_DRM
-
-# Nouveau blacklist - NVIDIA proprietary sürücü tercihi korunuyor.
-write_root_file /etc/modprobe.d/blacklist-gpu.conf 0644 <<'EOF_BLACKLIST'
-blacklist nouveau
-options nouveau modeset=0
-EOF_BLACKLIST
-
-# GRUB parametrelerini tekrarsız ekle.
-if ! grep -q 'nvidia-drm.modeset=1' /etc/default/grub; then
-    sudo sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="\(.*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 splash nvidia-drm.modeset=1"/' /etc/default/grub
-fi
-sudo sed -i 's/quiet quiet/quiet/g; s/splash splash/splash/g; s/  */ /g' /etc/default/grub
-sudo update-grub
-
-# Early KMS modülleri initramfs'e tekrarsız ekle.
-for mod in i915 nvidia nvidia_modeset nvidia_uvm nvidia_drm; do
-    append_line_once /etc/initramfs-tools/modules "$mod"
-done
+# Early KMS modülü initramfs'e tekrarsız ekle.
+append_line_once /etc/initramfs-tools/modules "i915"
 
 sudo sensors-detect --auto || true
 sudo update-initramfs -u
