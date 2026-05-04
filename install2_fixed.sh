@@ -57,6 +57,7 @@ section() {
 }
 
 section "Debian 13 Trixie KDE Plasma Kurulumu - Bölüm 2"
+
 # ============================================
 # 1. PİPEWIRE + KODEKLER
 # ============================================
@@ -110,25 +111,21 @@ apt_install \
 
 section "[5/8] KDE Plasma masaüstü"
 
-section "[5/8] KDE Plasma masaüstü"
-
 apt_install \
     kde-plasma-desktop sddm \
     systemsettings \
     plasma-workspace-wallpapers \
     powerdevil power-profiles-daemon upower \
     plasma-systemmonitor ksystemstats plasma-disks \
-    plasma-pa plasma-nm bluedevil \
+    plasma-pa plasma-nm bluedevil kio-extras \
     polkit-kde-agent-1 \
     xdg-desktop-portal xdg-desktop-portal-kde \
     qml6-module-org-kde-notifications \
     kdegraphics-thumbnailers kde-config-screenlocker kde-config-sddm kscreen \
-    kio-extras \
     dolphin konsole kate kcalc ark gwenview okular kde-spectacle kdeconnect \
     plymouth-themes \
     sddm-theme-breeze sddm-theme-debian-breeze \
     qt6-virtualkeyboard-plugin qml6-module-qtquick-virtualkeyboard
-
 
 sudo apt-get purge -y plasma-thunderbolt || true
 
@@ -137,6 +134,9 @@ sudo locale-gen tr_TR.UTF-8
 sudo update-locale LANG=tr_TR.UTF-8 LC_ALL=tr_TR.UTF-8
 
 sudo systemctl enable sddm
+sudo systemctl enable --now power-profiles-daemon || true
+sudo systemctl enable --now upower || true
+sudo systemctl enable --now thermald || true
 
 sudo systemctl daemon-reload
 
@@ -160,22 +160,67 @@ sudo curl -fsSL https://pkg.emby.media/apt/emby-beta.sources -o /etc/apt/sources
 apt_update
 apt_install media.emby.client.beta
 
+
 # mpv: VA-API ana yol; Vulkan açık bırakıldı çünkü hedef akıcı video ve GPU path.
-sudo -u "$ADMIN_USER" mkdir -p "$ADMIN_HOME/.config/mpv"
-sudo -u "$ADMIN_USER" tee "$ADMIN_HOME/.config/mpv/mpv.conf" >/dev/null <<'EOF_MPV'
+mkdir -p "$ADMIN_HOME/.config/mpv"
+cat > "$ADMIN_HOME/.config/mpv/mpv.conf" <<'EOF_MPV'
+# --- Renderer ---
 vo=gpu-next
-gpu-api=vulkan
+gpu-api=auto
+
+# --- Donanım Hızlandırma ---
 hwdec=vaapi
 hwdec-codecs=all
 vd-lavc-dr=yes
-profile=gpu-hq
+
+# --- Video Senkronizasyon ---
+video-sync=audio
+interpolation=no
+
+# --- Ölçekleme ---
+scale=bilinear
+cscale=bilinear
 dscale=mitchell
 correct-downscaling=yes
-linear-downscaling=yes
+
+# --- Performans ---
+vd-lavc-threads=0
+deband=no
+framedrop=vo
+
+# --- HDR / Renk ---
 tone-mapping=bt.2446a
 hdr-compute-peak=yes
+
+# --- Ses ---
+audio-channels=stereo
+volume=100
+volume-max=150
+
+# --- Genel ---
+keep-open=yes
+save-position-on-quit=yes
+osc=yes
+
+# --- Önbellek ---
+cache=yes
+demuxer-max-bytes=500MiB
+demuxer-max-back-bytes=200MiB
+
+# --- İndirme kalitesi ---
+ytdl-format=bestvideo[vcodec!=?av1][height<=2160]+bestaudio/best
+
+# --- Altyazı ---
 sub-auto=fuzzy
+sub-font-size=40
 EOF_MPV
+
+mkdir -p ~/.config/mpv && cat << EOF >> ~/.config/mpv/input.conf
+# Fare tekerleği yukarı: 10 saniye ileri
+WHEEL_UP      seek 10
+# Fare tekerleği aşağı: 10 saniye geri
+WHEEL_DOWN    seek -10
+EOF
 
 # ============================================
 # 7. FIREFOX KURULUMU
