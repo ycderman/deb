@@ -235,20 +235,22 @@ apt_install \
     gir1.2-gtk-4.0 gir1.2-adw-1 gettext \
     gir1.2-gstreamer-1.0 gstreamer1.0-gtk4 gstreamer1.0-vaapi
 
-sudo -u "$ADMIN_USER" mkdir -p "$ADMIN_HOME/src"
-if [[ -d "$ADMIN_HOME/src/EngPlayer/.git" ]]; then
-    sudo -u "$ADMIN_USER" git -C "$ADMIN_HOME/src/EngPlayer" pull --ff-only
+mkdir -p "$HOME/src" "$HOME/.local" "$HOME/.config"
+
+if [[ -d "$HOME/src/EngPlayer/.git" ]]; then
+    git -C "$HOME/src/EngPlayer" pull --ff-only
 else
-    sudo -u "$ADMIN_USER" git clone https://github.com/Falldaemon/EngPlayer.git "$ADMIN_HOME/src/EngPlayer"
+    git clone https://github.com/Falldaemon/EngPlayer.git "$HOME/src/EngPlayer"
 fi
 
-sudo -u "$ADMIN_USER" make -C "$ADMIN_HOME/src/EngPlayer" install-manual
+make -C "$HOME/src/EngPlayer" install-manual
 
 apt_install nfs-common wsdd2
 sudo systemctl enable --now wsdd2 || true
 
-sudo -u "$ADMIN_USER" mkdir -p "$ADMIN_HOME/storage"
-NFS_LINE="192.168.1.3:/srv/storage $ADMIN_HOME/storage nfs defaults,_netdev,noauto,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.mount-timeout=5,x-systemd.idle-timeout=1min,soft,timeo=10,retrans=1 0 0"
+sudo mkdir -p /mnt/storage
+
+NFS_LINE="192.168.1.3:/srv/storage /mnt/storage nfs defaults,_netdev,noauto,x-systemd.automount,x-systemd.requires=network-online.target,x-systemd.mount-timeout=5,x-systemd.idle-timeout=1min,soft,timeo=10,retrans=1 0 0"
 append_line_once /etc/fstab "$NFS_LINE"
 
 sudo systemctl daemon-reload
