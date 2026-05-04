@@ -196,6 +196,18 @@ apt_update
 apt_install firefox firefox-l10n-tr
 sudo apt-get purge -y firefox-esr || true
 
+# Brave Browser Release kurulumu.
+apt_install curl
+
+sudo curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg \
+    https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+
+sudo curl -fsSLo /etc/apt/sources.list.d/brave-browser-release.sources \
+    https://brave-browser-apt-release.s3.brave.com/brave-browser.sources
+
+apt_update
+apt_install brave-browser
+
 # ============================================
 # 8. ENGPLAYER + NFS STORAGE
 # ============================================
@@ -225,10 +237,12 @@ NFS_LINE="192.168.1.3:/srv/storage $ADMIN_HOME/storage nfs defaults,_netdev,noau
 append_line_once /etc/fstab "$NFS_LINE"
 
 sudo systemctl daemon-reload
-sudo systemctl disable --now nfs-blkmap.service || true
+# VA-API ve Wayland ortam değişkenleri.
 
-apt_update
-sudo apt-get autoremove --purge -y
+sudo tee /etc/environment >/dev/null <<'EOF_ENVIRONMENT'
+LIBVA_DRIVER_NAME=iHD
+MOZ_ENABLE_WAYLAND=1
+EOF_ENVIRONMENT
 
 section "Kurulum tamamlandı"
 echo "Sistem Bilgileri:"
