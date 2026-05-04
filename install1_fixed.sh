@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Debian 13 Trixie Minimal KDE Plasma Kurulumu - Bölüm 1
 # IdeaPad 530S-14IKB - İlk Kurulum
-# Hedef: kişisel laptop/masaüstü + KDE + NVIDIA + Intel VA-API + medya odaklı kullanım
+# Hedef: kişisel laptop/masaüstü + KDE + Intel VA-API + medya odaklı kullanım
 
 set -Eeuo pipefail
 
@@ -65,6 +65,7 @@ section() {
 }
 
 section "Debian 13 Trixie KDE Plasma Kurulumu - Bölüm 1"
+
 # ============================================
 # 1. TEMEL SİSTEM AYARLARI
 # ============================================
@@ -180,7 +181,7 @@ apt_install \
 # VA-API / VDPAU
 apt_install \
     libva2 libva-drm2 libva-glx2 libva-wayland2 libva-x11-2 vainfo \
-    libvdpau-va-gl1 vdpauinfo gstreamer1.0-vaapi
+    vdpauinfo gstreamer1.0-vaapi
 
 # Ekran / DDC / sensör
 apt_install \
